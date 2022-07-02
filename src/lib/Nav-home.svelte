@@ -70,14 +70,15 @@
   }
   .menu-nav ul li a {
     color: #f3f3f3;
+    background-color: transparent;
     font-size: 18px;
     padding: 7px 13px;
     border-radius: 3px;
     text-transform: uppercase;
   }
-  li a.active,
-  li a:hover {
-    background: var(--secondary-color);
+  .btn.active,
+  .btn:hover {
+    background-color: var(--secondary-color);
     transition: 0.5s;
   }
   .checkbtn {
@@ -146,11 +147,6 @@
     .menu-nav ul li a {
       font-size: 20px;
     }
-    /* li a:hover,
-  li a.active {
-     background: #000090;
-    color: red; 
-  } */
     #check:checked ~ ul {
       left: 0;
     }

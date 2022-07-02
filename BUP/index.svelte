@@ -1,11 +1,7 @@
 <script>
-  import { isLogged, credentials, notification } from "./../stores.js";
-  import { goto } from "$app/navigation";
-
   let errors = {};
   let email = null;
   let password = null;
-  let isLoading = false;
 
   // function isRequired(value) {
   //   return value != null && value !== "";
@@ -41,7 +37,6 @@
     }
 
     if (Object.keys(errors).length === 0) {
-      isLoading = true;
       try {
         const res = await fetch("http://localhost:3100/api/v1/auth/login", {
           method: "POST",
@@ -54,20 +49,16 @@
           },
         });
         const data = await res.json();
-        if (res.status === 200) {
+        console.log("resultado", data);
+        if (data) {
+          console.log(data);
           // Almaceno token en localstorage
           localStorage.setItem("token", data.token);
-          isLogged.login();
-          credentials.setCredentials(data);
-          notification.show("Bienvenido!!!", "info");
-          goto("/dashboard");
         } else {
           throw "Error en Login";
         }
       } catch (err) {
-        notification.show(err, "error");
-      } finally {
-        isLoading = false;
+        console.log("Error", err);
       }
     }
   }
@@ -87,9 +78,8 @@
         name="email"
         bind:value={email}
         on:input={resetFieldError}
-        required="required"
       />
-
+      <!-- required="required" -->
       <label for="email">Email</label>
       {#if errors.email}
         <p class="error"><small style="color: red"> {errors.email} </small></p>
@@ -101,8 +91,8 @@
         name="password"
         bind:value={password}
         on:input={resetFieldError}
-        required="required"
       />
+      <!-- required="required"  -->
       <label for="password">Password</label>
       {#if errors.password}
         <p class="error">
@@ -110,8 +100,6 @@
         </p>
       {/if}
     </div>
-
-    <p><a href="/forgot-password"> ¿Olvidó su password?</a></p>
 
     <button class="btn ripple btn-local">Login</button>
   </form>
@@ -141,7 +129,8 @@
     color: #fff;
     text-align: center;
   }
-  input {
+  input,
+  textarea {
     margin-top: 35px;
     background: none;
     color: var(--text-white-color);
@@ -155,18 +144,41 @@
   }
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus {
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
     -webkit-text-fill-color: var(--text-white-color);
     transition: background-color 5000s ease-in-out 0s;
     caret-color: var(--text-white-color);
   }
+  input:hover {
+    /* border: 3px solid black; */
+    /* border-top: 0px solid black; */
+  }
+  input:focus,
+  textarea:focus {
+    outline: none;
+    /* border: 3px solid black; */
+    /* border-top: 0px solid black; */
+  }
   input:focus ~ label,
-  input:valid ~ label {
+  input:valid ~ label,
+  textarea:focus ~ label,
+  textarea:valid ~ label {
     top: -15px;
     font-size: 12px;
     left: 11px;
     background: none;
   }
+  input:focus ~ .bar:before,
+  textarea:focus ~ .bar:before {
+    width: 100%;
+  }
+
   input[type="password"] {
     letter-spacing: 0.3em;
   }
@@ -184,31 +196,56 @@
     transition: 300ms ease all;
     padding: 0 2px;
   }
+
   .btn-local {
     margin-top: 40px;
   }
 
-  p {
-    text-align: right;
-    cursor: pointer;
+  /* input {
+		outline: none;
+		border-width: 2px;
+	} */
+
+  :global(.ripple:active:after) {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
   }
 
-  a {
-    text-decoration: none;
-    color: var(--text-white-color);
-  }
-  a:link,
-  a:visited,
-  a:focus,
-  a:hover,
-  a:active {
-    color: var(--text-white-color);
+  :global(:root) {
+    --principal-color: #141e30;
+    --secondary-color: #243b55;
+    --dark-color: rgba(0, 0, 0, 0.5);
+    --text-white-color: #c6c6c6;
   }
 
-  @media (max-width: 858px) {
-    .login-box {
-      width: 90%;
-      padding: 20px;
-    }
+  :global(.btn) {
+    border-radius: 5px;
+    background-color: var(--secondary-color);
+    color: #fff;
+    font-size: 18px;
+    padding: 3px 15px;
+  }
+
+  :global(.ripple) {
+    position: relative;
+    overflow: hidden;
+    transform: translate3d(0, 0, 0);
+  }
+  :global(.ripple:after) {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.5s, opacity 1s;
   }
 </style>

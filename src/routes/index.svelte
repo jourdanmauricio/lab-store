@@ -1,10 +1,17 @@
 <script>
-  import { isLogged, credentials, notification } from "./../stores.js";
+  import { isLogged, credentials, notification } from "../store/stores.js";
   import { goto } from "$app/navigation";
+  import { onMount } from "svelte";
+
+  onMount(() => {
+    console.log("Mount index");
+  });
 
   let errors = {};
-  let email = null;
-  let password = null;
+  // let email = null;
+  let email = "jourdanmauricio@gmail.com";
+  // let password = null;
+  let password = "mau10ti0";
   let isLoading = false;
 
   // function isRequired(value) {
@@ -57,8 +64,10 @@
         if (res.status === 200) {
           // Almaceno token en localstorage
           localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
           isLogged.login();
-          credentials.setCredentials(data);
+          credentials.setCredentials(data.user);
+          console.log("user store", $credentials);
           notification.show("Bienvenido!!!", "info");
           goto("/dashboard");
         } else {

@@ -1,5 +1,5 @@
 <script>
-  import { notification } from "../stores";
+  import { notification } from "../store/stores";
   function handleType() {
     let classes = `snackbar ${$notification.type} `;
     if ($notification.show) classes += "show ";

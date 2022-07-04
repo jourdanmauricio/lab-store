@@ -1,13 +1,12 @@
 <script>
-  import { isLogged, credentials } from "./../../stores";
+  import { isLogged, credentials } from "../../store/stores";
   import { goto } from "$app/navigation";
 
   function logout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     isLogged.logout();
-    console.log("isLogged", $isLogged);
     credentials.setCredentials({});
-    console.log("credentials", $credentials);
     goto("/");
   }
 </script>

@@ -17,7 +17,18 @@ const createUserLogin = () => {
 export const isLogged = createUserLogin();
 
 const createCredentials = () => {
-  const { subscribe, update, set } = writable({});
+  const { subscribe, update, set } = writable({
+    email: "",
+    id: "",
+    role: "",
+    customer: {
+      name: "",
+      lastName: "",
+      phone: "",
+      documentType: "",
+      documentNumber: "",
+    },
+  });
 
   return {
     subscribe,

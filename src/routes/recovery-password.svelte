@@ -1,5 +1,5 @@
 <script>
-  import { notification } from "./../stores.js";
+  import { notification } from "../store/stores.js";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import Spinner from "../lib/Spinner.svelte";

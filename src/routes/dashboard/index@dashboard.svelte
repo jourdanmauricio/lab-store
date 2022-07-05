@@ -3,7 +3,7 @@
   import { goto } from "$app/navigation";
 
   function logout() {
-    localStorage.removeItem("token");
+    //localStorage.removeItem("token");
     localStorage.removeItem("user");
     isLogged.logout();
     credentials.setCredentials({});

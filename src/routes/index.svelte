@@ -9,9 +9,9 @@
 
   let errors = {};
   // let email = null;
-  let email = "jourdanmauricio@gmail.com";
+  let email = "admin@integriprod.com";
   // let password = null;
-  let password = "mau10ti0";
+  let password = "integriprod";
   let isLoading = false;
 
   // function isRequired(value) {
@@ -63,9 +63,10 @@
         const data = await res.json();
         if (res.status === 200) {
           // Almaceno token en localstorage
-          localStorage.setItem("token", data.token);
+          //localStorage.setItem("token", data.token);
           localStorage.setItem("user", JSON.stringify(data.user));
           isLogged.login();
+          data.user.token = data.token;
           credentials.setCredentials(data.user);
           console.log("user store", $credentials);
           notification.show("Bienvenido!!!", "info");

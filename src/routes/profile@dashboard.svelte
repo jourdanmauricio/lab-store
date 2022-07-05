@@ -1,27 +1,90 @@
 <script>
-  import { credentials } from "../store/stores";
+  import { credentials, notification } from "../store/stores";
+  import { variables } from "$lib/variables";
+  import ModalChangePass from "../lib/profile/Modal-change-Pass.svelte";
+  import { validateFields } from "./../helpers/validateFileds";
 
-  const errors = {};
+  let errors = {};
+  let isLoading = false;
 
-  function resetFieldError() {
-    console.log("Clear error");
+  function resetFieldError(e) {
+    delete errors[e.target.name];
+    errors = errors;
   }
-  function handleSubmit(event) {
+
+  async function handleSubmit(event) {
     const formData = new FormData(event.target);
     const formUser = {};
-    for (const [k, v] of formData.entries()) {
-      formUser[k] = v;
+    for (const [key, value] of formData.entries()) {
+      formUser[key] = value;
     }
-    console.log("valor no form", formUser);
-    // console.log("valor no store", getUser());
+    /* isPassword, isConfirmPassword, isEmail, isName, isPhone, isDocument, none */
+    formData.append("name", "isName");
+    formData.append("lastName", "isName");
+    formData.append("documentType", "isName");
+    formData.append("phone", "isPhone");
+    formData.append("documentNumber", "isDocument");
+    errors = validateFields(formData);
+
+    if (Object.keys(errors).length === 0) {
+      isLoading = true;
+      let url, method;
+      try {
+        if ($credentials.customer) {
+          url = `${variables.basePath}/customers/${$credentials.customer.id}`;
+          method = "PATCH";
+        } else {
+          url = `${variables.basePath}/customers`;
+          method = "POST";
+        }
+
+        formUser.userId = $credentials.id;
+        delete formUser.role;
+
+        const res = await fetch(url, {
+          method: method,
+          body: JSON.stringify(formUser),
+          headers: {
+            "content-type": "application/json",
+            Authorization: `Bearer ${$credentials.token}`,
+          },
+        });
+        const data = await res.json();
+        if (res.status === 201) {
+          const user = $credentials;
+          user.customer = data;
+          localStorage.setItem("user", JSON.stringify(user));
+          credentials.setCredentials(user);
+          notification.show("Perfil actualizado correctamente 👌", "success");
+          // goto("/dashboard");
+        } else {
+          let message = "";
+          message = res.statusText
+            ? `${res.status}: ${res.statusText}`
+            : "Error actualizando el perfil 😞";
+          throw message;
+        }
+      } catch (err) {
+        notification.show(err, "error");
+      } finally {
+        isLoading = false;
+      }
+    }
   }
 </script>
 
-<section class="personal">
+<!-- <section class="personal">
   <h2>{$credentials.email}</h2>
   <button class="btn ripple btn-local">Eliminar cuenta</button>
-  <button class="btn ripple btn-local">Cambiar contraseña</button>
-</section>
+
+  <button class="btn ripple btn-local" on:click={() => getModal().open()}
+    >Cambiar contraseña</button
+  >
+</section> -->
+
+<h2>{$credentials.email}</h2>
+
+<ModalChangePass />
 
 <form on:submit|preventDefault={handleSubmit}>
   <div class="profile-form">
@@ -30,7 +93,7 @@
         type="text"
         name="name"
         on:input={resetFieldError}
-        value={$credentials.customer.name}
+        value={$credentials.customer ? $credentials.customer.name : ""}
         required="required"
       />
       <label for="password">Nombre</label>
@@ -45,7 +108,7 @@
         type="text"
         name="lastName"
         on:input={resetFieldError}
-        value={$credentials.customer.lastName}
+        value={$credentials.customer ? $credentials.customer.lastName : ""}
         required="required"
       />
       <label for="password">Apellido</label>
@@ -64,22 +127,17 @@
         readonly
       />
       <!-- required="required" -->
-      <label for="password">Role</label>
-      {#if errors.role}
-        <p class="error">
-          <small style="color: red"> {errors.role} </small>
-        </p>
-      {/if}
+      <label for="role">Role</label>
     </div>
     <div class="group">
       <input
         type="text"
         name="phone"
         on:input={resetFieldError}
-        value={$credentials.customer.phone}
+        value={$credentials.customer ? $credentials.customer.phone : ""}
         required="required"
       />
-      <label for="password">Teléfono</label>
+      <label for="phone">Teléfono</label>
       {#if errors.phone}
         <p class="error">
           <small style="color: red"> {errors.phone} </small>
@@ -89,12 +147,12 @@
     <div class="group">
       <input
         type="text"
-        name="phone"
+        name="documentType"
         on:input={resetFieldError}
-        value={$credentials.customer.documentType}
+        value={$credentials.customer ? $credentials.customer.documentType : ""}
         required="required"
       />
-      <label for="password">Tipo documento</label>
+      <label for="documentType">Tipo documento</label>
       {#if errors.documentType}
         <p class="error">
           <small style="color: red"> {errors.documentType} </small>
@@ -104,36 +162,20 @@
     <div class="group">
       <input
         type="text"
-        name="phone"
+        name="documentNumber"
         on:input={resetFieldError}
-        value={$credentials.customer.documentNumber}
+        value={$credentials.customer
+          ? $credentials.customer.documentNumber
+          : ""}
         required="required"
       />
-      <label for="password">Número documento</label>
+      <label for="documentNumber">Número documento</label>
       {#if errors.documentNumber}
         <p class="error">
           <small style="color: red"> {errors.documentNumber} </small>
         </p>
       {/if}
     </div>
-    <!-- <div class="group">
-      <input type="text" name="phone" on:input={resetFieldError} />
-      <label for="password">Nueva contraseña</label>
-      {#if errors.password}
-        <p class="error">
-          <small style="color: red"> {errors.password} </small>
-        </p>
-      {/if}
-    </div>
-    <div class="group">
-      <input type="text" name="phone" on:input={resetFieldError} />
-      <label for="password">Confirmación contraseña</label>
-      {#if errors.confirmPassword}
-        <p class="error">
-          <small style="color: red"> {errors.confirmPassword} </small>
-        </p>
-      {/if}
-    </div> -->
   </div>
   <div class="controls">
     <button type="submit" class="btn ripple btn-local">Enviar</button>
@@ -158,6 +200,12 @@
     grid-template-columns: 1fr 1fr;
     column-gap: 30px;
   }
+  .error {
+    position: absolute;
+    top: 45px;
+    right: 15px;
+  }
+
   input {
     margin-top: 35px;
     background: none;

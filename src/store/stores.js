@@ -20,6 +20,7 @@ const createCredentials = () => {
   const { subscribe, update, set } = writable({
     email: "",
     id: "",
+    token: "",
     role: "",
     customer: {
       name: "",

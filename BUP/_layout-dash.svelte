@@ -15,9 +15,8 @@
   onMount(async () => {
     console.log("Mount Dashboard");
     if (!$isLogged) {
-      const token = localStorage.getItem("token");
-      if (token) {
-        const user = await localStorage.getItem("user");
+      const user = localStorage.getItem("user");
+      if (user) {
         console.log("user", JSON.parse(user));
         isLogged.login();
         credentials.setCredentials(JSON.parse(user));
